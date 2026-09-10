@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Token Counter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD" crossorigin="anonymous"></script>
+<style>
+  :root {
+    --bg: #f9f9f8;
+    --surface: #ffffff;
+    --border: #e5e5e3;
+    --text: #1a1a18;
+    --muted: #6b6b66;
+    --accent: #d97706;
+    --accent-light: #fef3c7;
+    --green: #059669;
+    --blue: #2563eb;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111110;
+      --surface: #1c1c1a;
+      --border: #2e2e2b;
+      --text: #e8e8e3;
+      --muted: #888882;
+      --accent: #f59e0b;
+      --accent-light: #292112;
+      --green: #34d399;
+      --blue: #60a5fa;
+      --shadow: 0 1px 3px rgba(0,0,0,.4);
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 20px 48px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .wrapper { max-width: 1100px; margin: 0 auto; }
+
+  /* header */
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.3px; }
+  .subtitle { color: var(--muted); font-size: 12px; }
+  .refresh-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 5px 12px;
+    transition: border-color .15s;
+  }
+  .refresh-btn:hover { border-color: var(--accent); }
+
+  /* summary cards */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .card-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
+  .card-value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .card-value.money { color: var(--accent); }
+  .card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* section */
+  section { margin-bottom: 36px; }
+  h2 { font-size: 15px; font-weight: 600; margin: 0 0 12px; }
+
+  /* table */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  th:hover { color: var(--text); }
+  th.sort-asc::after  { content: " ▲"; font-size: 9px; }
+  th.sort-desc::after { content: " ▼"; font-size: 9px; }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--accent-light); }
+  .model-name { font-family: ui-monospace, "Cascadia Code", monospace; font-size: 13px; }
+  .num { text-align: right; }
+  .cost-cell { text-align: right; font-weight: 600; color: var(--accent); }
+  .total-row td { font-weight: 700; background: var(--bg); }
+  .bar {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--accent);
+    opacity: .7;
+    min-width: 2px;
+    margin-top: 4px;
+  }
+
+  /* chart */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .chart-card canvas { max-height: 260px; }
+
+  /* project accordion */
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    box-shadow: var(--shadow);
+  }
+  summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+    list-style: none;
+    user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "›"; transform: rotate(90deg); display: inline-block; color: var(--muted); transition: transform .15s; }
+  details[open] summary::after { transform: rotate(270deg); }
+  .proj-cost { color: var(--accent); font-weight: 700; font-size: 13px; }
+  .proj-inner { padding: 0 16px 12px; overflow-x: auto; }
+  .proj-inner table { border: none; box-shadow: none; font-size: 13px; }
+  .proj-inner th, .proj-inner td { padding: 7px 10px; }
+
+  /* notice */
+  .notice {
+    background: var(--accent-light);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* empty state */
+  .empty { text-align: center; padding: 48px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <div>
+      <h1>Claude Code Token Counter</h1>
+      <div class="subtitle" id="subtitle">Loading...</div>
+    </div>
+    <button class="refresh-btn" onclick="load()">↺ Refresh</button>
+  </header>
+
+  <div class="cards" id="cards"></div>
+  <div id="unknown-notice" hidden></div>
+
+  <section>
+    <h2>Usage by Model</h2>
+    <div class="table-wrap" id="model-table-wrap">
+      <div class="empty">Loading...</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Daily Cost</h2>
+    <div class="chart-card">
+      <canvas id="daily-chart"></canvas>
+    </div>
+  </section>
+
+  <section>
+    <h2>By Project</h2>
+    <div id="project-list"><div class="empty">Loading...</div></div>
+  </section>
+</div>
+
+<script>
+let chartInstance = null;
+
+const MODEL_COLORS = [
+  "#d97706","#2563eb","#059669","#dc2626","#7c3aed",
+  "#0891b2","#c2410c","#4f46e5","#be185d","#047857",
+];
+
+function fmt(n, dec=0) {
+  return Number(n).toLocaleString("en-US", { maximumFractionDigits: dec, minimumFractionDigits: dec });
+}
+function fmtM(n) {
+  if (n >= 1_000_000) return fmt(n / 1_000_000, 2) + "M";
+  if (n >= 1_000)     return fmt(n / 1_000, 1)     + "K";
+  return fmt(n);
+}
+function fmtCost(n) {
+  if (n >= 1000) return "$" + fmt(n, 2);
+  if (n >= 1)    return "$" + n.toFixed(4);
+  if (n >= 0.01) return "$" + n.toFixed(5);
+  return "$" + n.toFixed(6);
+}
+function fmtCostShort(n) {
+  if (n === 0) return "$0";
+  if (n >= 10)   return "$" + n.toFixed(2);
+  if (n >= 1)    return "$" + n.toFixed(3);
+  if (n >= 0.01) return "$" + n.toFixed(4);
+  return "$" + n.toFixed(5);
+}
+
+// ----- sorting state -----
+let sortCol = "cost", sortDir = "desc";
+
+function sortModels(rows) {
+  const sign = sortDir === "asc" ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    const av = a[sortCol] ?? 0, bv = b[sortCol] ?? 0;
+    return typeof av === "string" ? sign * av.localeCompare(bv) : sign * (av - bv);
+  });
+}
+
+// ----- build model table -----
+function buildModelTable(data) {
+  const models = data.models;
+  const totalCost = data.total_cost;
+
+  if (!models || Object.keys(models).length === 0) {
+    document.getElementById("model-table-wrap").innerHTML =
+      '<div class="empty">No token data found in ~/.claude/projects/</div>';
+    return;
+  }
+
+  const rows = Object.entries(models).map(([name, m]) => ({
+    model: name,
+    input_tokens: m.input_tokens,
+    cache_creation_tokens: m.cache_creation_tokens,
+    cache_read_tokens: m.cache_read_tokens,
+    output_tokens: m.output_tokens,
+    thinking_tokens: m.thinking_tokens,
+    total_tokens: m.input_tokens + m.cache_creation_tokens + m.cache_read_tokens + m.output_tokens,
+    cost: m.cost,
+    messages: m.messages,
+  }));
+
+  const sorted = sortModels(rows);
+
+  const cols = [
+    { key: "model",                label: "Model",          cls: "model-name" },
+    { key: "messages",             label: "Turns",          cls: "num" },
+    { key: "input_tokens",         label: "Input",          cls: "num" },
+    { key: "cache_creation_tokens",label: "Cache Write",    cls: "num" },
+    { key: "cache_read_tokens",    label: "Cache Read",     cls: "num" },
+    { key: "output_tokens",        label: "Output",         cls: "num" },
+    { key: "total_tokens",         label: "Total Tokens",   cls: "num" },
+    { key: "cost",                 label: "Cost",           cls: "cost-cell" },
+  ];
+
+  const ths = cols.map(c => {
+    let cls = "";
+    if (c.key === sortCol) cls = "sort-" + sortDir;
+    return `<th class="${cls}" onclick="setSort('${c.key}')">${c.label}</th>`;
+  }).join("");
+
+  const maxCost = Math.max(...rows.map(r => r.cost), 0.0001);
+
+  const tds = sorted.map(r => {
+    const pct = (r.cost / maxCost * 100).toFixed(1);
+    return `<tr>
+      <td class="model-name">${r.model}</td>
+      <td class="num">${fmt(r.messages)}</td>
+      <td class="num">${fmtM(r.input_tokens)}</td>
+      <td class="num">${fmtM(r.cache_creation_tokens)}</td>
+      <td class="num">${fmtM(r.cache_read_tokens)}</td>
+      <td class="num">${fmtM(r.output_tokens)}</td>
+      <td class="num">${fmtM(r.total_tokens)}</td>
+      <td class="cost-cell">
+        ${fmtCost(r.cost)}
+        <div class="bar" style="width:${pct}%"></div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  const totals = rows.reduce((acc, r) => {
+    acc.messages             += r.messages;
+    acc.input_tokens         += r.input_tokens;
+    acc.cache_creation_tokens+= r.cache_creation_tokens;
+    acc.cache_read_tokens    += r.cache_read_tokens;
+    acc.output_tokens        += r.output_tokens;
+    acc.total_tokens         += r.total_tokens;
+    acc.cost                 += r.cost;
+    return acc;
+  }, { messages:0, input_tokens:0, cache_creation_tokens:0, cache_read_tokens:0, output_tokens:0, total_tokens:0, cost:0 });
+
+  const totalRow = `<tr class="total-row">
+    <td>Total</td>
+    <td class="num">${fmt(totals.messages)}</td>
+    <td class="num">${fmtM(totals.input_tokens)}</td>
+    <td class="num">${fmtM(totals.cache_creation_tokens)}</td>
+    <td class="num">${fmtM(totals.cache_read_tokens)}</td>
+    <td class="num">${fmtM(totals.output_tokens)}</td>
+    <td class="num">${fmtM(totals.total_tokens)}</td>
+    <td class="cost-cell">${fmtCost(totals.cost)}</td>
+  </tr>`;
+
+  document.getElementById("model-table-wrap").innerHTML = `
+    <table>
+      <thead><tr>${ths}</tr></thead>
+      <tbody>${tds}${totalRow}</tbody>
+    </table>`;
+}
+
+function setSort(col) {
+  if (sortCol === col) {
+    sortDir = sortDir === "asc" ? "desc" : "asc";
+  } else {
+    sortCol = col;
+    sortDir = col === "model" ? "asc" : "desc";
+  }
+  buildModelTable(window._data);
+}
+
+// ----- daily chart -----
+function buildChart(data) {
+  const daily = data.daily;
+  const days = Object.keys(daily).sort();
+  if (days.length === 0) return;
+
+  const models = [...new Set(days.flatMap(d => Object.keys(daily[d])))];
+  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const gridColor = isDark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)";
+  const textColor = isDark ? "#888882" : "#6b6b66";
+
+  const datasets = models.map((m, i) => ({
+    label: m,
+    data: days.map(d => daily[d][m] || 0),
+    borderColor: MODEL_COLORS[i % MODEL_COLORS.length],
+    backgroundColor: MODEL_COLORS[i % MODEL_COLORS.length] + "22",
+    tension: 0.3,
+    fill: true,
+    pointRadius: days.length > 30 ? 0 : 3,
+    borderWidth: 2,
+  }));
+
+  const ctx = document.getElementById("daily-chart").getContext("2d");
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: { labels: days, datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { labels: { color: textColor, boxWidth: 12, font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${fmtCostShort(ctx.raw)}`,
+            footer: items => "  Total: " + fmtCostShort(items.reduce((s, i) => s + i.raw, 0)),
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: textColor, maxTicksLimit: 12 }, grid: { color: gridColor } },
+        y: {
+          ticks: { color: textColor, callback: v => fmtCostShort(v) },
+          grid: { color: gridColor },
+        }
+      }
+    }
+  });
+}
+
+// ----- project list -----
+function buildProjects(data) {
+  const projects = data.projects;
+  if (!projects || Object.keys(projects).length === 0) {
+    document.getElementById("project-list").innerHTML = '<div class="empty">No projects found.</div>';
+    return;
+  }
+
+  const sorted = Object.entries(projects)
+    .map(([name, models]) => ({
+      name,
+      cost: Object.values(models).reduce((s, m) => s + m.cost, 0),
+      models,
+    }))
+    .sort((a, b) => b.cost - a.cost);
+
+  document.getElementById("project-list").innerHTML = sorted.map((p, i) => {
+    const rows = Object.entries(p.models)
+      .sort((a, b) => b[1].cost - a[1].cost)
+      .map(([m, v]) => `<tr>
+        <td class="model-name">${m}</td>
+        <td class="num">${fmt(v.messages)}</td>
+        <td class="num">${fmtM(v.input_tokens + v.cache_creation_tokens + v.cache_read_tokens + v.output_tokens)}</td>
+        <td class="cost-cell">${fmtCost(v.cost)}</td>
+      </tr>`).join("");
+
+    return `<details ${i === 0 ? "open" : ""}>
+      <summary>
+        <span>${p.name}</span>
+        <span class="proj-cost">${fmtCost(p.cost)}</span>
+      </summary>
+      <div class="proj-inner">
+        <table>
+          <thead><tr><th>Model</th><th>Turns</th><th>Tokens</th><th>Cost</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </details>`;
+  }).join("");
+}
+
+// ----- summary cards -----
+function buildCards(data) {
+  const range = data.date_range;
+  const rangeStr = range[0]
+    ? (range[0] === range[1] ? range[0] : `${range[0]} → ${range[1]}`)
+    : "no data";
+
+  const totalTok = Object.values(data.models).reduce(
+    (s, m) => s + m.input_tokens + m.cache_creation_tokens + m.cache_read_tokens + m.output_tokens, 0);
+
+  const numModels = Object.keys(data.models).length;
+
+  document.getElementById("cards").innerHTML = `
+    <div class="card">
+      <div class="card-label">Total Cost</div>
+      <div class="card-value money">${fmtCost(data.total_cost)}</div>
+      <div class="card-sub">all time</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Tokens</div>
+      <div class="card-value">${fmtM(totalTok)}</div>
+      <div class="card-sub">across all models</div>
+    </div>
+    <div class="card">
+      <div class="card-label">API Turns</div>
+      <div class="card-value">${fmt(data.total_messages)}</div>
+      <div class="card-sub">assistant messages</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Models Used</div>
+      <div class="card-value">${numModels}</div>
+      <div class="card-sub">${Object.keys(data.projects).length} projects</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Date Range</div>
+      <div class="card-value" style="font-size:14px;margin-top:8px">${rangeStr}</div>
+    </div>`;
+
+  document.getElementById("subtitle").textContent =
+    `Scanned ~/.claude/projects  ·  Updated ${new Date().toLocaleTimeString()}`;
+
+  const notice = document.getElementById("unknown-notice");
+  if (data.unknown_models && data.unknown_models.length > 0) {
+    notice.hidden = false;
+    notice.innerHTML = `<div class="notice">
+      Unknown models (no pricing data, cost shown as $0):
+      <code>${data.unknown_models.join(", ")}</code>
+    </div>`;
+  } else {
+    notice.hidden = true;
+  }
+}
+
+async function load() {
+  try {
+    const res = await fetch("/api/stats");
+    const data = await res.json();
+    window._data = data;
+    buildCards(data);
+    buildModelTable(data);
+    buildChart(data);
+    buildProjects(data);
+  } catch (e) {
+    document.getElementById("subtitle").textContent = "Error loading data: " + e.message;
+  }
+}
+
+load();
+</script>
+</body>
+</html>
