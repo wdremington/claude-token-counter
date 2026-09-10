@@ -227,6 +227,15 @@
 <script>
 let chartInstance = null;
 
+function esc(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const MODEL_COLORS = [
   "#d97706","#2563eb","#059669","#dc2626","#7c3aed",
   "#0891b2","#c2410c","#4f46e5","#be185d","#047857",
@@ -312,7 +321,7 @@ function buildModelTable(data) {
   const tds = sorted.map(r => {
     const pct = (r.cost / maxCost * 100).toFixed(1);
     return `<tr>
-      <td class="model-name">${r.model}</td>
+      <td class="model-name">${esc(r.model)}</td>
       <td class="num">${fmt(r.messages)}</td>
       <td class="num">${fmtM(r.input_tokens)}</td>
       <td class="num">${fmtM(r.cache_creation_tokens)}</td>
@@ -435,7 +444,7 @@ function buildProjects(data) {
     const rows = Object.entries(p.models)
       .sort((a, b) => b[1].cost - a[1].cost)
       .map(([m, v]) => `<tr>
-        <td class="model-name">${m}</td>
+        <td class="model-name">${esc(m)}</td>
         <td class="num">${fmt(v.messages)}</td>
         <td class="num">${fmtM(v.input_tokens + v.cache_creation_tokens + v.cache_read_tokens + v.output_tokens)}</td>
         <td class="cost-cell">${fmtCost(v.cost)}</td>
@@ -443,7 +452,7 @@ function buildProjects(data) {
 
     return `<details ${i === 0 ? "open" : ""}>
       <summary>
-        <span>${p.name}</span>
+        <span>${esc(p.name)}</span>
         <span class="proj-cost">${fmtCost(p.cost)}</span>
       </summary>
       <div class="proj-inner">
@@ -502,7 +511,7 @@ function buildCards(data) {
     notice.hidden = false;
     notice.innerHTML = `<div class="notice">
       Unknown models (no pricing data, cost shown as $0):
-      <code>${data.unknown_models.join(", ")}</code>
+      <code>${data.unknown_models.map(esc).join(", ")}</code>
     </div>`;
   } else {
     notice.hidden = true;
