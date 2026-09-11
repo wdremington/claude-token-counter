@@ -14,7 +14,7 @@
 # `./build.sh --release` prints.
 cask "tokencounter" do
   version "1.1.0"
-  sha256 "REPLACE_WITH_THE_SHA256_PRINTED_BY_build.sh"
+  sha256 "f86f3b834e71645c7f81e4985389daec7aea8766b48e75c0d56f657d8229c864"
 
   url "https://github.com/wdremington/claude-token-counter/releases/download/v#{version}/TokenCounter-#{version}.dmg"
   name "TokenCounter"
