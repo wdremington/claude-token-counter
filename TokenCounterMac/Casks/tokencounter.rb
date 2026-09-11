@@ -4,7 +4,7 @@
 # under `Casks/`, not here — it lives in this repo only as the source of truth to
 # copy from. Users then install with:
 #
-#   brew install --cask OWNER/tap/tokencounter
+#   brew install --cask wdremington/tap/tokencounter
 #
 # The official homebrew/cask tap enforces a notability floor (roughly 30 forks /
 # 30 watchers / 75 stars, checked in CI), so a new project is not eligible there
@@ -16,10 +16,10 @@ cask "tokencounter" do
   version "1.1.0"
   sha256 "REPLACE_WITH_THE_SHA256_PRINTED_BY_build.sh"
 
-  url "https://github.com/OWNER/TokenCounter/releases/download/v#{version}/TokenCounter-#{version}.dmg"
+  url "https://github.com/wdremington/claude-token-counter/releases/download/v#{version}/TokenCounter-#{version}.dmg"
   name "TokenCounter"
   desc "Menu bar dashboard for Claude Code token usage and cost"
-  homepage "https://github.com/OWNER/TokenCounter"
+  homepage "https://github.com/wdremington/claude-token-counter"
 
   livecheck do
     url :url

@@ -17,7 +17,7 @@ and the app is still complete and correct.
 ## Install
 
 ```sh
-brew install --cask OWNER/tap/tokencounter
+brew install --cask wdremington/tap/tokencounter
 ```
 
 The release is signed with a Developer ID and notarized, so it launches without
@@ -213,7 +213,7 @@ reads `~/.claude/projects`.
 
 The official `homebrew/cask` tap enforces a notability floor (roughly 30 forks /
 30 watchers / 75 stars, checked in CI), so a new project should ship through its
-own tap. For the user, `brew install --cask OWNER/tap/tokencounter` behaves
+own tap. For the user, `brew install --cask wdremington/tap/tokencounter` behaves
 identically.
 
 ## Layout
