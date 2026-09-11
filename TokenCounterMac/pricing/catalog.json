@@ -1,0 +1,207 @@
+{
+  "entries" : [
+    {
+      "displayName" : "Fable 5.1",
+      "id" : "claude-fable-5-1",
+      "rate" : {
+        "cacheReadPerMTok" : 0.25,
+        "input" : 10,
+        "output" : 50
+      }
+    },
+    {
+      "displayName" : "Mythos 5.1",
+      "id" : "claude-mythos-5-1",
+      "rate" : {
+        "cacheReadPerMTok" : 0.25,
+        "input" : 10,
+        "output" : 50
+      }
+    },
+    {
+      "displayName" : "Fable 5",
+      "id" : "claude-fable-5",
+      "rate" : {
+        "input" : 10,
+        "output" : 50
+      }
+    },
+    {
+      "displayName" : "Mythos 5",
+      "id" : "claude-mythos-5",
+      "rate" : {
+        "input" : 10,
+        "output" : 50
+      }
+    },
+    {
+      "displayName" : "Opus 5",
+      "id" : "claude-opus-5",
+      "rate" : {
+        "input" : 5,
+        "output" : 25
+      }
+    },
+    {
+      "displayName" : "Opus 4.8",
+      "id" : "claude-opus-4-8",
+      "rate" : {
+        "input" : 5,
+        "output" : 25
+      }
+    },
+    {
+      "displayName" : "Opus 4.7",
+      "id" : "claude-opus-4-7",
+      "rate" : {
+        "input" : 5,
+        "output" : 25
+      }
+    },
+    {
+      "displayName" : "Opus 4.6",
+      "id" : "claude-opus-4-6",
+      "rate" : {
+        "input" : 5,
+        "output" : 25
+      }
+    },
+    {
+      "displayName" : "Sonnet 5",
+      "id" : "claude-sonnet-5",
+      "rate" : {
+        "input" : 2,
+        "output" : 10
+      }
+    },
+    {
+      "displayName" : "Sonnet 4.6",
+      "id" : "claude-sonnet-4-6",
+      "rate" : {
+        "input" : 3,
+        "output" : 15
+      }
+    },
+    {
+      "displayName" : "Haiku 4.5",
+      "id" : "claude-haiku-4-5",
+      "rate" : {
+        "input" : 1,
+        "output" : 5
+      }
+    },
+    {
+      "displayName" : "Opus 4.5",
+      "id" : "claude-opus-4-5",
+      "rate" : {
+        "input" : 5,
+        "output" : 25
+      }
+    },
+    {
+      "displayName" : "Opus 4.1",
+      "id" : "claude-opus-4-1",
+      "rate" : {
+        "input" : 15,
+        "output" : 75
+      }
+    },
+    {
+      "displayName" : "Opus 4",
+      "id" : "claude-opus-4-0",
+      "rate" : {
+        "input" : 15,
+        "output" : 75
+      }
+    },
+    {
+      "displayName" : "Opus 4",
+      "id" : "claude-opus-4-20250514",
+      "rate" : {
+        "input" : 15,
+        "output" : 75
+      }
+    },
+    {
+      "displayName" : "Sonnet 4.5",
+      "id" : "claude-sonnet-4-5",
+      "rate" : {
+        "input" : 3,
+        "longContext" : {
+          "inputMultiplier" : 2,
+          "outputMultiplier" : 1.5,
+          "thresholdInputTokens" : 200000
+        },
+        "output" : 15
+      }
+    },
+    {
+      "displayName" : "Sonnet 4",
+      "id" : "claude-sonnet-4-0",
+      "rate" : {
+        "input" : 3,
+        "longContext" : {
+          "inputMultiplier" : 2,
+          "outputMultiplier" : 1.5,
+          "thresholdInputTokens" : 200000
+        },
+        "output" : 15
+      }
+    },
+    {
+      "displayName" : "Sonnet 4",
+      "id" : "claude-sonnet-4-20250514",
+      "rate" : {
+        "input" : 3,
+        "longContext" : {
+          "inputMultiplier" : 2,
+          "outputMultiplier" : 1.5,
+          "thresholdInputTokens" : 200000
+        },
+        "output" : 15
+      }
+    },
+    {
+      "displayName" : "Sonnet 3.7",
+      "id" : "claude-3-7-sonnet",
+      "rate" : {
+        "input" : 3,
+        "output" : 15
+      }
+    },
+    {
+      "displayName" : "Sonnet 3.5",
+      "id" : "claude-3-5-sonnet",
+      "rate" : {
+        "input" : 3,
+        "output" : 15
+      }
+    },
+    {
+      "displayName" : "Haiku 3.5",
+      "id" : "claude-3-5-haiku",
+      "rate" : {
+        "input" : 0.8,
+        "output" : 4
+      }
+    },
+    {
+      "displayName" : "Opus 3",
+      "id" : "claude-3-opus",
+      "rate" : {
+        "input" : 15,
+        "output" : 75
+      }
+    },
+    {
+      "displayName" : "Haiku 3",
+      "id" : "claude-3-haiku",
+      "rate" : {
+        "input" : 0.25,
+        "output" : 1.25
+      }
+    }
+  ],
+  "schema" : 1,
+  "updated" : "2026-09-11"
+}

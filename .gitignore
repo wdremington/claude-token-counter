@@ -5,3 +5,9 @@ venv/
 env/
 *.egg-info/
 .DS_Store
+
+# Swift / native app
+TokenCounterMac/.build/
+TokenCounterMac/build/
+TokenCounterMac/.swiftpm/
+*.xcuserstate
