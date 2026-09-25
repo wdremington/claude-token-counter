@@ -256,3 +256,9 @@ both modes. Colors are assigned per model from the model's rank by **token
 volume** across the whole dataset — not the filtered range, and not spend, so
 neither narrowing the date range nor editing a rate repaints the series that
 remain. A ninth model folds into "Other" rather than inventing a ninth hue.
+
+## Contributing and license
+
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for the development workflow and
+release process. The app version lives in `VERSION`. TokenCounter is licensed
+under the [Apache License 2.0](../LICENSE).

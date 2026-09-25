@@ -1,0 +1,37 @@
+name: Bug report
+description: Something is wrong or doesn't work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Select range "Last 7 days"
+        2. Click …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: TokenCounter version
+      placeholder: "1.1.0"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "26.0"
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or logs
+      description: Please redact project paths, prompts, and anything else private before posting.
