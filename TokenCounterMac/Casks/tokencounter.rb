@@ -10,7 +10,7 @@
 # 30 watchers / 75 stars, checked in CI), so a new project is not eligible there
 # yet. An own tap has no such bar and behaves identically for the user.
 #
-# Before each release: bump `version`, and paste the sha256 that
+# Before each release: set `version` to match TokenCounterMac/VERSION, and paste the sha256 that
 # `./build.sh --release` prints.
 cask "tokencounter" do
   version "1.1.0"

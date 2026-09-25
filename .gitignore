@@ -11,3 +11,16 @@ TokenCounterMac/.build/
 TokenCounterMac/build/
 TokenCounterMac/.swiftpm/
 *.xcuserstate
+
+# Claude Code config and artifacts (local only — repo is public)
+CLAUDE.md
+CLAUDE.local.md
+**/CLAUDE.md
+**/CLAUDE.local.md
+.claude/
+**/.claude/
+CLAUDE-SECURITY-*/
+
+# Editor settings
+.vscode/
+**/.vscode/

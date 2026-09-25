@@ -143,19 +143,24 @@ enum SelfTest {
         equal(over.evaluate(.daily, now: now), nil, "and it does not fire twice in one period")
 
         // Rolling into the next day lets it fire again; the same day does not.
+        // Periods follow the local calendar, so these instants are built in the
+        // local zone - fixed offsets would cross midnight on a UTC CI runner.
+        let cal = Calendar.current
+        let localNoon = cal.date(from: DateComponents(year: 2026, month: 9, day: 11, hour: 12))!
+        let localLate = cal.date(from: DateComponents(year: 2026, month: 9, day: 11, hour: 23))!
+        let localNext = cal.date(from: DateComponents(year: 2026, month: 9, day: 12, hour: 9))!
         let rollover = store(daily: 10)
-        rollover.update(dailySpend: 12, monthlySpend: 0, now: now)
-        equal(rollover.evaluate(.daily, now: now), .exceeded, "first alert of the day")
-        equal(rollover.evaluate(.daily, now: date("2026-09-11T23:00:00-05:00")), nil,
-              "later the same day stays quiet")
-        equal(rollover.evaluate(.daily, now: date("2026-09-12T09:00:00-05:00")), .exceeded,
-              "the next day can alert again")
+        rollover.update(dailySpend: 12, monthlySpend: 0, now: localNoon)
+        equal(rollover.evaluate(.daily, now: localNoon), .exceeded, "first alert of the day")
+        equal(rollover.evaluate(.daily, now: localLate), nil, "later the same day stays quiet")
+        equal(rollover.evaluate(.daily, now: localNext), .exceeded, "the next day can alert again")
 
         // The dedupe key is persisted, so a relaunch does not re-fire.
         let reopened = BudgetStore(defaults: suite)
         reopened.dailyLimit = 10
-        reopened.update(dailySpend: 12, monthlySpend: 0, now: date("2026-09-12T10:00:00-05:00"))
-        equal(reopened.evaluate(.daily, now: date("2026-09-12T10:00:00-05:00")), nil,
+        let localRelaunch = cal.date(from: DateComponents(year: 2026, month: 9, day: 12, hour: 10))!
+        reopened.update(dailySpend: 12, monthlySpend: 0, now: localRelaunch)
+        equal(reopened.evaluate(.daily, now: localRelaunch), nil,
               "a relaunch does not repeat an alert already seen")
 
         // Raising a limit the user already blew past can be re-armed by hand.

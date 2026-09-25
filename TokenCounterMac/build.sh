@@ -18,7 +18,7 @@ cd "$(dirname "$0")"
 
 APP_NAME="TokenCounter"
 BUNDLE_ID="com.tokencounter.app"
-VERSION="1.1.0"
+VERSION="$(tr -d '[:space:]' < VERSION)"
 BUILD_DIR="build"
 BUNDLE="${BUILD_DIR}/${APP_NAME}.app"
 DMG="${BUILD_DIR}/${APP_NAME}-${VERSION}.dmg"
